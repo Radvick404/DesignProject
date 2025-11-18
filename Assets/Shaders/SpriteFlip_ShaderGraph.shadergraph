@@ -1,0 +1,76 @@
+
+{
+  "m_SGVersion": 2,
+  "m_Type": "UnityShaderGraph",
+  "m_ObjectId": "a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+  "m_Properties": [
+    {
+      "m_Name": "_MainTex",
+      "m_Type": "Texture2D",
+      "m_Default": "white"
+    },
+    {
+      "m_Name": "_Color",
+      "m_Type": "Color",
+      "m_Default": "(1,1,1,1)"
+    },
+    {
+      "m_Name": "_Flip",
+      "m_Type": "Vector1",
+      "m_Default": 1.0
+    }
+  ],
+  "m_Nodes": [
+    {
+      "m_Type": "SampleTexture2D",
+      "m_ObjectId": "node_sampletex",
+      "m_Texture": "_MainTex",
+      "m_UV": "node_uv_out"
+    },
+    {
+      "m_Type": "UV",
+      "m_ObjectId": "node_uv",
+      "m_Out": "node_uv_out"
+    },
+    {
+      "m_Type": "Split",
+      "m_ObjectId": "node_split",
+      "m_In": "node_uv_out",
+      "m_OutX": "uv_x",
+      "m_OutY": "uv_y"
+    },
+    {
+      "m_Type": "OneMinus",
+      "m_ObjectId": "node_oneminus",
+      "m_In": "uv_x",
+      "m_Out": "uv_x_inverted"
+    },
+    {
+      "m_Type": "Branch",
+      "m_ObjectId": "node_branch",
+      "m_Predicate": "_Flip",
+      "m_True": "uv_x_inverted",
+      "m_False": "uv_x",
+      "m_Out": "uv_x_final"
+    },
+    {
+      "m_Type": "Combine",
+      "m_ObjectId": "node_combine",
+      "m_InX": "uv_x_final",
+      "m_InY": "uv_y",
+      "m_Out": "uv_final"
+    },
+    {
+      "m_Type": "Multiply",
+      "m_ObjectId": "node_multiply",
+      "m_InA": "node_sampletex",
+      "m_InB": "_Color",
+      "m_Out": "color_out"
+    },
+    {
+      "m_Type": "MasterUnlit",
+      "m_ObjectId": "node_master",
+      "m_Color": "color_out"
+    }
+  ]
+}
