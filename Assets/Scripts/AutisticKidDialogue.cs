@@ -29,17 +29,17 @@ public class AutisticKidDialogue : MonoBehaviour
         if (trustMeter.trust < 10)
         {
             ui.ShowOptions(
-                "Can I stay here with you?", () => TrustChange(+2),
-                "Can I sit next to you quietly?", () => TrustChange(+2),
-                "HELLOOO!!", () => TrustChange(-8)
+                "Can I stay here with you?", () => { ui.ShowReply("Yes."); TrustChange(+2); },
+                "Can I sit next to you quietly?", () => { ui.ShowReply("Okay."); TrustChange(+2); },
+                "HELLOOO!!", () => { ui.ShowReply("Too loud."); TrustChange(-8); }
             );
         }
         else
         {
             ui.ShowOptions(
-                "Do you like the sky today?", () => TrustChange(+4),
-                "Do you want space or company?", () => TrustChange(+6),
-                "Let's swing super high!", () => TrustChange(-5)
+                "Do you like the sky today?", () => { ui.ShowReply("Yes."); TrustChange(+4); },
+                "Do you want space or company?", () => { ui.ShowReply("Space."); TrustChange(+6); },
+                "Let's swing super high!", () => { ui.ShowReply("Too high."); TrustChange(-5); }
             );
         }
     }
@@ -52,17 +52,17 @@ public class AutisticKidDialogue : MonoBehaviour
         if (trustMeter.trust < 20)
         {
             ui.ShowOptions(
-                "Too noisy here?", () => TrustChange(+4),
-                "We can stay at the side.", () => TrustChange(+5),
-                "Don’t be scared!", () => TrustChange(-6)
+                "Too noisy here?", () => { ui.ShowReply("Yes."); TrustChange(+4); },
+                "We can stay at the side.", () => { ui.ShowReply("Thank you."); TrustChange(+5); },
+                "Donï¿½t be scared!", () => { ui.ShowReply("I am trying."); TrustChange(-6); }
             );
         }
         else
         {
             ui.ShowOptions(
-                "You can go first. I'll wait.", () => TrustChange(+6),
-                "Can I slide after you?", () => TrustChange(+4),
-                "Just go!", () => TrustChange(-8)
+                "You can go first. I'll wait.", () => { ui.ShowReply("Okay."); TrustChange(+6); },
+                "Can I slide after you?", () => { ui.ShowReply("Yes."); TrustChange(+4); },
+                "Just go!", () => { ui.ShowReply("Alright."); TrustChange(-8); }
             );
         }
     }
@@ -75,17 +75,17 @@ public class AutisticKidDialogue : MonoBehaviour
         if (trustMeter.trust < 30)
         {
             ui.ShowOptions(
-                "You can sit. I won't move.", () => TrustChange(+3),
-                "(Wait silently)", () => TrustChange(+6),
-                "Let's go up fast!", () => TrustChange(-7)
+                "You can sit. I won't move.", () => { ui.ShowReply("Thank you."); TrustChange(+3); },
+                "(Wait silently)", () => { ui.ShowReply("..."); TrustChange(+6); },
+                "Let's go up fast!", () => { ui.ShowReply("No."); TrustChange(-7); }
             );
         }
         else
         {
             ui.ShowOptions(
-                "We'll move slow, okay?", () => TrustChange(+8),
-                "Do you like gentle play?", () => TrustChange(+5),
-                "Let's bounce high!", () => TrustChange(-6)
+                "We'll move slow, okay?", () => { ui.ShowReply("Yes."); TrustChange(+8); },
+                "Do you like gentle play?", () => { ui.ShowReply("Yes."); TrustChange(+5); },
+                "Let's bounce high!", () => { ui.ShowReply("Not now."); TrustChange(-6); }
             );
         }
     }

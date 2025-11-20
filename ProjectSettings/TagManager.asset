@@ -12,6 +12,7 @@ TagManager:
   - KidProximity
   - Patrol
   - NPC
+  - Autistic
   layers:
   - Default
   - TransparentFX

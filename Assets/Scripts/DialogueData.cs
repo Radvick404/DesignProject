@@ -5,6 +5,7 @@ public struct DialogueOption
 {
     public string text;
     public int trustChange;
+    public string replyText;
 }
 
 [System.Serializable]

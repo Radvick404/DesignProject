@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class NormalKidDialogue : MonoBehaviour
 {
@@ -106,17 +106,17 @@ public class NormalKidDialogue : MonoBehaviour
         if (trustMeter.trust < 20)
         {
             ui.ShowOptions(
-                "Swings look fun! Want to go higher together?", () => TrustChange(+10),
-                "Can I sit next to you?", () => TrustChange(+5),
-                "Move. I want that swing.", () => TrustChange(-10)
+                "Swings look fun! Want to go higher together?", () => { ui.ShowReply("Okay! Let's go higher."); TrustChange(+10); },
+                "Can I sit next to you?", () => { ui.ShowReply("Yes, you can sit here."); TrustChange(+5); },
+                "Move. I want that swing.", () => { ui.ShowReply("That's not very nice."); TrustChange(-10); }
             );
         }
         else
         {
             ui.ShowOptions(
-                "Race you to the sky!", () => TrustChange(+10),
-                "Nice weather huh?", () => TrustChange(+5),
-                "You're swinging weird.", () => TrustChange(-5)
+                "Race you to the sky!", () => { ui.ShowReply("You're on!"); TrustChange(+10); },
+                "Nice weather huh?", () => { ui.ShowReply("Yeah, it's great."); TrustChange(+5); },
+                "You're swinging weird.", () => { ui.ShowReply("Hmm."); TrustChange(-5); }
             );
         }
     }
@@ -128,17 +128,17 @@ public class NormalKidDialogue : MonoBehaviour
         if (trustMeter.trust < 30)
         {
             ui.ShowOptions(
-                "Want to slide together?", () => TrustChange(+10),
-                "Why do you like this slide?", () => TrustChange(+5),
-                "You slide like a turtle.", () => TrustChange(-10)
+                "Want to slide together?", () => { ui.ShowReply("Let's go."); TrustChange(+10); },
+                "Why do you like this slide?", () => { ui.ShowReply("It's smooth."); TrustChange(+5); },
+                "You slide like a turtle.", () => { ui.ShowReply("Hey."); TrustChange(-10); }
             );
         }
         else
         {
             ui.ShowOptions(
-                "Ready for a race?", () => TrustChange(+10),
-                "You go first!", () => TrustChange(+5),
-                "Just go!", () => TrustChange(-8)
+                "Ready for a race?", () => { ui.ShowReply("Ready."); TrustChange(+10); },
+                "You go first!", () => { ui.ShowReply("Okay."); TrustChange(+5); },
+                "Just go!", () => { ui.ShowReply("Alright."); TrustChange(-8); }
             );
         }
     }
@@ -150,17 +150,17 @@ public class NormalKidDialogue : MonoBehaviour
         if (trustMeter.trust < 35)
         {
             ui.ShowOptions(
-                "Let's balance together.", () => TrustChange(+15),
-                "What if we go super high?", () => TrustChange(+7),
-                "Get off. I want it.", () => TrustChange(-15)
+                "Let's balance together.", () => { ui.ShowReply("Okay."); TrustChange(+15); },
+                "What if we go super high?", () => { ui.ShowReply("Maybe."); TrustChange(+7); },
+                "Get off. I want it.", () => { ui.ShowReply("No."); TrustChange(-15); }
             );
         }
         else
         {
             ui.ShowOptions(
-                "We'll move slow, okay?", () => TrustChange(+15),
-                "Do you like gentle play?", () => TrustChange(+5),
-                "Let's bounce fast!", () => TrustChange(-10)
+                "We'll move slow, okay?", () => { ui.ShowReply("Yes."); TrustChange(+15); },
+                "Do you like gentle play?", () => { ui.ShowReply("I do."); TrustChange(+5); },
+                "Let's bounce fast!", () => { ui.ShowReply("Too fast."); TrustChange(-10); }
             );
         }
     }
@@ -168,6 +168,7 @@ public class NormalKidDialogue : MonoBehaviour
     void TrustChange(int value)
     {
         trustMeter.ModifyTrust(value);
-        ui.HideOptions();
+            ui.HideOptions();
+            ui.HideReply();
     }
 }

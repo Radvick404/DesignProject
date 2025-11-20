@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System.Collections;
+using UnityEngine;
 
 public class NPCDialogueTrigger : MonoBehaviour
 {
@@ -130,19 +131,27 @@ public class NPCDialogueTrigger : MonoBehaviour
     // -----------------------------------------------------
     void TrustSelect(DialogueOption opt)
     {
+        // Show reply text
+        ui.ShowReply(opt.replyText);
+
+        // Adjust trust
         trust.ModifyTrust(opt.trustChange);
 
+        // Hide options
         ui.HideOptions();
         uiOpen = false;
 
-        // Interaction locked in this zone
+        // Lock interaction for this zone
         interactionLocked = true;
-
         chatBubble.SetActive(false);
 
-        // ⭐ UI closed → NPC resumes patrol
+        // Auto-hide reply after X seconds
+        StartCoroutine(AutoHideReply(2f));   // <--- adjustable
+
+        // NPC resumes patrol
         proximity.SetUIState(false);
     }
+
 
     // -----------------------------------------------------
     // PLAYER EXITED → RESET EVERYTHING
@@ -155,6 +164,9 @@ public class NPCDialogueTrigger : MonoBehaviour
             uiOpen = false;
         }
 
+        // Keep reply visible, but hide UI if player runs away
+        // Reply will naturally be overwritten next time
+
         chatBubble.SetActive(false);
 
         interactionLocked = false;
@@ -162,6 +174,11 @@ public class NPCDialogueTrigger : MonoBehaviour
 
         // Ensure NPC walks again
         proximity.SetUIState(false);
+    }
+    IEnumerator AutoHideReply(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ui.HideReply();
     }
 
     // -----------------------------------------------------

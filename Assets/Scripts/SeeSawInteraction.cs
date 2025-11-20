@@ -19,7 +19,7 @@ public class SeeSawInteraction : MonoBehaviour
     public float sitHeightOffset = 0.1f;
 
     [Header("Detach Delay")]
-    public float detachDelay = 0.5f;   // ⭐ Delay before detach allowed
+    public float detachDelay = 0.5f;
     private float nextDetachTime = 0f;
 
     private bool playerInside = false;
@@ -31,49 +31,85 @@ public class SeeSawInteraction : MonoBehaviour
     private MonoBehaviour playerMovementScript;
     private Rigidbody playerRB;
 
+    // ---------------- NPC SETTINGS ----------------
+    [Header("NPC Settings")]
+    public float npcSitDuration = 3f;
+    public string npcTag = "NPC";
 
-    private void Start()
+    private bool npcAttached = false;
+    private Transform npc;
+    private Transform npcSeat;
+    private MonoBehaviour npcMovementScript;
+
+    // --------------------------------------------------------
+    void Start()
     {
         if (pressXIcon)
             pressXIcon.SetActive(false);
     }
 
-
+    // --------------------------------------------------------
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player")) return;
+        // ---------------- PLAYER ENTER ----------------
+        if (other.CompareTag("Player"))
+        {
+            playerInside = true;
+            player = other.transform;
 
-        playerInside = true;
-        player = other.transform;
+            playerMovementScript = player.GetComponent<MonoBehaviour>();
+            playerRB = player.GetComponent<Rigidbody>();
 
-        playerMovementScript = player.GetComponent<MonoBehaviour>();
-        playerRB = player.GetComponent<Rigidbody>();
+            if (pressXIcon)
+                pressXIcon.SetActive(true);
+        }
 
-        if (pressXIcon)
-            pressXIcon.SetActive(true);
+        // ---------------- NPC ENTER ----------------
+        if (other.CompareTag(npcTag) && !npcAttached)
+        {
+            npc = other.transform;
+
+            npcMovementScript = npc.GetComponent<MonoBehaviour>();
+
+            // Pick nearest seat
+            float distLeft = Vector3.Distance(npc.position, seatLeft.position);
+            float distRight = Vector3.Distance(npc.position, seatRight.position);
+            npcSeat = (distLeft < distRight) ? seatLeft : seatRight;
+
+            // Block seat if player is already using it
+            if (playerAttached && npcSeat == currentSeat)
+            {
+                Debug.Log("NPC seat blocked by player.");
+                return;
+            }
+
+            AttachNPC();
+        }
     }
 
-
+    // --------------------------------------------------------
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (other.CompareTag("Player"))
+        {
+            playerInside = false;
 
-        playerInside = false;
-
-        if (pressXIcon)
-            pressXIcon.SetActive(false);
-/*
-        if (playerAttached)
-            DetachPlayer();*/
+            if (pressXIcon)
+                pressXIcon.SetActive(false);
+        }
     }
 
-
+    // --------------------------------------------------------
     private void Update()
     {
+        // NPC sitting? Ignore player logic
+        if (npcAttached)
+            return;
+
         if (!playerInside)
             return;
 
-        // ------- ATTACH (only if not attached) -------
+        // ------- PLAYER ATTACH -------
         if (!playerAttached && Input.GetKeyDown(KeyCode.X))
         {
             if (pressXIcon)
@@ -83,38 +119,44 @@ public class SeeSawInteraction : MonoBehaviour
             return;
         }
 
-        // ------- DETACH (only if allowed by timer) -------
+        // ------- PLAYER DETACH -------
         if (playerAttached && Input.GetKeyDown(KeyCode.X))
         {
-            if (Time.time >= nextDetachTime)   // ⭐ delay check
+            if (Time.time >= nextDetachTime)
             {
                 DetachPlayer();
 
                 if (pressXIcon)
                     pressXIcon.SetActive(true);
             }
-
             return;
         }
 
+        // ------- CONTROL SEESAW -------
         if (playerAttached)
             ControlSeesaw();
 
-
-        // keep X icon above player
+        // Keep icon above player
         if (pressXIcon && pressXIcon.activeSelf && player)
             pressXIcon.transform.position = player.position + new Vector3(0, 2f, 0);
     }
 
-
+    // --------------------------------------------------------
+    // PLAYER ATTACH / DETACH
+    // --------------------------------------------------------
     void AttachPlayer()
     {
         if (!player) return;
 
         float distLeft = Vector3.Distance(player.position, seatLeft.position);
         float distRight = Vector3.Distance(player.position, seatRight.position);
-
         currentSeat = (distLeft < distRight) ? seatLeft : seatRight;
+
+        if (npcAttached && currentSeat == npcSeat)
+        {
+            Debug.Log("Cannot sit — NPC is on this seat.");
+            return;
+        }
 
         playerAttached = true;
 
@@ -124,34 +166,80 @@ public class SeeSawInteraction : MonoBehaviour
         if (playerRB)
             playerRB.isKinematic = true;
 
+        // Set parent but KEEP world scale (prevents shrinking)
+        player.SetParent(currentSeat, true);
+
+        // Adjust position/rotation
         player.position = currentSeat.position + Vector3.up * sitHeightOffset;
         player.rotation = currentSeat.rotation;
 
-        player.SetParent(currentSeat);
-
-        // ⭐ Set delay timer: cannot detach immediately
         nextDetachTime = Time.time + detachDelay;
-
-        Debug.Log("Player attached to seesaw, detach available after delay.");
     }
-
 
     void DetachPlayer()
     {
         playerAttached = false;
 
-        player.SetParent(null);
+        player.SetParent(null, true);
 
         if (playerMovementScript)
             playerMovementScript.enabled = true;
 
         if (playerRB)
             playerRB.isKinematic = false;
-
-        Debug.Log("Player detached from seesaw.");
     }
 
+    // --------------------------------------------------------
+    // NPC ATTACH / DETACH
+    // --------------------------------------------------------
+    void AttachNPC()
+    {
+        if (!npc) return;
 
+        npcAttached = true;
+
+        if (npcMovementScript)
+            npcMovementScript.enabled = false;
+
+        Rigidbody npcRB = npc.GetComponent<Rigidbody>();
+        if (npcRB)
+            npcRB.isKinematic = true;
+
+        // Safe parent
+        npc.SetParent(npcSeat, true);
+
+        npc.position = npcSeat.position + Vector3.up * 0.1f;
+        npc.rotation = npcSeat.rotation;
+
+        StartCoroutine(NPCSitTimer());
+    }
+
+    System.Collections.IEnumerator NPCSitTimer()
+    {
+        yield return new WaitForSeconds(npcSitDuration);
+        DetachNPC();
+    }
+
+    void DetachNPC()
+    {
+        if (!npc) return;
+
+        npcAttached = false;
+
+        npc.SetParent(null, true);
+
+        if (npcMovementScript)
+            npcMovementScript.enabled = true;
+
+        Rigidbody npcRB = npc.GetComponent<Rigidbody>();
+        if (npcRB)
+            npcRB.isKinematic = false;
+
+        npc = null;
+        npcSeat = null;
+    }
+
+    // --------------------------------------------------------
     void ControlSeesaw()
     {
         float input = 0f;

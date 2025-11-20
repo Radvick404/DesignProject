@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using System.Collections;
 
 public class AutisticNPCDialogueTrigger : MonoBehaviour
 {
@@ -145,10 +146,14 @@ public class AutisticNPCDialogueTrigger : MonoBehaviour
     }
 
     // -------------------------
-    // AUTISTIC TRUST ADJUSTMENT
+    // AUTISTIC TRUST + REPLY
     // -------------------------
     void TrustSelect(DialogueOption opt)
     {
+        // Reply text appears
+        ui.ShowReply(opt.replyText);
+
+        // Apply adjusted trust
         int adjusted = Mathf.RoundToInt(opt.trustChange * trustMultiplier);
         trust.ModifyTrust(adjusted);
 
@@ -161,7 +166,17 @@ public class AutisticNPCDialogueTrigger : MonoBehaviour
 
         chatBubble.SetActive(false);
 
-        proximity.SetUIState(false);  // ⭐ resume NPC patrol
+        // ⭐ resume NPC patrol
+        proximity.SetUIState(false);
+
+        // ⭐ auto-hide reply after X seconds
+        StartCoroutine(AutoHideReply(2f));
+    }
+
+    IEnumerator AutoHideReply(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ui.HideReply();
     }
 
     // -------------------------
@@ -183,8 +198,9 @@ public class AutisticNPCDialogueTrigger : MonoBehaviour
             uiOpen = false;
         }
 
+        // Do NOT hide reply here
         chatBubble.SetActive(false);
-        proximity.SetUIState(false); // ⭐ resume patrol always
+        proximity.SetUIState(false);
     }
 
     // -------------------------
